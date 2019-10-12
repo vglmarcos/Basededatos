@@ -3,6 +3,7 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import messagebox
+from tkinter.ttk import Combobox
 from Conexion import Conexion
 import pyodbc
 
@@ -80,7 +81,7 @@ class Login:
                 messagebox.showinfo("Bienvenida", f"Bienvenido {self.nombreIn.get()}")
                 self.window.destroy()
                 window = Tk()
-                menu = Menu(window, "Menú", 650, 500)
+                regProd = RegistrarProducto(window, "Registrar producto", 650, 500)
                 window.mainloop()
             else:
                 messagebox.showinfo("Error", "Usuario o contraseña incorrectos.")
@@ -94,7 +95,7 @@ class Login:
                     messagebox.showinfo("Bienvenida", f"Bienvenido {self.nombreIn.get()}")
                     self.window.destroy()
                     window = Tk()
-                    menu = Menu(window, "Menú", 650, 500)
+                    regProd = RegistrarProducto(window, "Registrar producto", 650, 500)
                     window.mainloop()
                 else:
                     messagebox.showinfo("Error", "Usuario o contraseña incorrectos.")
@@ -115,7 +116,7 @@ class Login:
         else:
             event.widget.configure(background = "white", foreground = "#32cbb9")
 
-class Menu:
+class RegistrarProducto:
     def __init__(self, window, title, w, h):
 
         self.w = w
@@ -137,52 +138,67 @@ class Menu:
         self.window.iconbitmap('images/logo.ico')
         self.window.configure(background = 'white')
 
-        self.id_producto = Label(self.window, text = "Id producto", font = ("Tahoma", 14),
+        self.tira2 = ImageTk.PhotoImage(Image.open("images/tira2.png"))
+        self.img_tira2 = Label(self.window, image = self.tira2,
+                                  background = "white", borderwidth = 0, highlightthickness = 0)
+        self.img_tira2.place(x = 0, y = 0)
+
+        self.titulo = Label(self.window, text = "Registrar producto", font = ("Tahoma", 18),
+                            background = "#32cbb9", foreground = "#ffffff")
+        self.titulo.place(x = 15, y = 15)
+
+        self.id_producto = Label(self.window, text = "Código de producto", font = ("Tahoma", 14),
                             background = "white", foreground = "#32cbb9")
-        self.id_producto.place(x = 100, y = 120)
-        self.id_productoIn = Entry(self.window, width = 8, font = ("Tahoma", 12),
-                              background = "#f4f4f4", foreground = "#32cbb9")
-        self.id_productoIn.place(x = 240, y = 125)
-        self.id_productoIn.bind("<Key>", self.key)
-        self.id_productoIn.bind("<FocusIn>", self.focus)
-        self.id_productoIn.bind("<FocusOut>", self.sinfocus)
+        self.id_producto.place(x = 30, y = 120)
+
+        consulta_id = [x for i in self.db.cursor.execute("SELECT MAX(co_prod) FROM Producto").fetchall() for x in i][0] #id max
+        if consulta_id == None: #si no hay productos en la tabla
+            id_nueva = 0
+        else:
+            id_nueva = consulta_id + 1
+
+        self.id_productoIn = Entry(self.window, width = 5, font = ("Tahoma", 12),
+                              background = "#e3e3e3", foreground = "#32cbb9", 
+                              disabledbackground = "#e3e3e3", disabledforeground = "#32cbb9")                       
+        self.id_productoIn.place(x = 220, y = 125)
+
+        self.id_productoIn.insert(0, id_nueva)
+
+        self.id_productoIn.configure(state = "disable")
 
         self.nom_producto = Label(self.window, text = "Nombre", font = ("Tahoma", 14),
                             background = "white", foreground = "#32cbb9")
-        self.nom_producto.place(x = 100, y = 170)
-        self.nom_productoIn = Entry(self.window, width = 14, font = ("Tahoma", 12),
+        self.nom_producto.place(x = 310, y = 120)
+        self.nom_productoIn = Entry(self.window, width = 20, font = ("Tahoma", 12),
                               background = "#f4f4f4", foreground = "#32cbb9")
-        self.nom_productoIn.place(x = 240, y = 175)
+        self.nom_productoIn.place(x = 400, y = 125)
         self.nom_productoIn.bind("<FocusIn>", self.focus)
         self.nom_productoIn.bind("<FocusOut>", self.sinfocus)
 
+        #agregar combobox para categoria
+        categorias = [x for i in self.db.cursor.execute("SELECT DISTINCT cat_prod FROM Producto").fetchall() for x in i]
+
         self.cat_producto = Label(self.window, text = "Categoría", font = ("Tahoma", 14),
                             background = "white", foreground = "#32cbb9")
-        self.cat_producto.place(x = 100, y = 200)
-        self.cat_productoIn = Entry(self.window, width = 14, font = ("Tahoma", 12),
-                              background = "#f4f4f4", foreground = "#32cbb9")
-        self.cat_productoIn.place(x = 240, y = 205)
-        self.cat_productoIn.bind("<FocusIn>", self.focus)
-        self.cat_productoIn.bind("<FocusOut>", self.sinfocus)
+        self.cat_producto.place(x = 30, y = 170)
+
+        self.cat_comb = Combobox(self.window, values = categorias, state = "readonly", font = ("Tahoma", 12),
+                                    background = "#f4f4f4", foreground = "#32cbb9", widt = 12)
+        self.cat_comb.current(0)
+        self.cat_comb.place(x = 130, y = 175)
+        self.cat_comb.selection_clear()
 
         self.pre_producto = Label(self.window, text = "Precio", font = ("Tahoma", 14),
                             background = "white", foreground = "#32cbb9")
-        self.pre_producto.place(x = 100, y = 230)
+        self.pre_producto.place(x = 310, y = 170)
         self.pre_productoIn = Entry(self.window, width = 14, font = ("Tahoma", 12),
                               background = "#f4f4f4", foreground = "#32cbb9")
-        self.pre_productoIn.place(x = 240, y = 235)
-        self.pre_productoIn.bind("<FocusIn>", self.focus)
-        self.pre_productoIn.bind("<FocusOut>", self.sinfocus)
+        self.pre_productoIn.place(x = 380, y = 175)
 
         self.tira1 = ImageTk.PhotoImage(Image.open("images/tira.png"))
         self.img_tira1 = Label(self.window, image = self.tira1,
                                   background = "white", borderwidth = 0, highlightthickness = 0)
         self.img_tira1.place(x = 0, y = 430)
-
-        self.tira2 = ImageTk.PhotoImage(Image.open("images/tira2.png"))
-        self.img_tira2 = Label(self.window, image = self.tira2,
-                                  background = "white", borderwidth = 0, highlightthickness = 0)
-        self.img_tira2.place(x = 0, y = 0)
 
         self.cerrar = Button(self.window, text = "Cerrar sesión", command = self.cerrarSesion, font = ("Tahoma", 12),
                             background = "#32cbb9", foreground = "white", width = 10, borderwidth = 2, highlightthickness = 1,
@@ -216,46 +232,31 @@ class Menu:
         window.mainloop()
 
     def buscarProducto(self):
-        if self.id_productoIn.get() != "":
-            try:
-                self.nom_productoIn.delete(0, END)
-                self.cat_productoIn.delete(0, END)
-                self.pre_productoIn.delete(0, END)
-                id_prod = int(self.id_productoIn.get())
-                self.db.cursor.execute(f"SELECT * FROM Producto WHERE co_prod = {id_prod}")
-                resultados = [list(i) for i in self.db.cursor]
-                if len(resultados) != 0:
-                    self.nom_productoIn.insert(0, resultados[0][2])
-                    self.cat_productoIn.insert(0, resultados[0][1])
-                    self.pre_productoIn.insert(0, resultados[0][3])
-                else:
-                    print(f"No hubo resultados para la busqueda con id {id_prod}.")
-            except ValueError:
-                print("Solo numeros enteros.")
-        elif self.cat_productoIn.get() != "":
-            self.nom_productoIn.delete(0, END)
-            self.id_productoIn.delete(0, END)
-            self.pre_productoIn.delete(0, END)
-            categoria = self.cat_productoIn.get()
-            self.db.cursor.execute(f"SELECT * FROM Producto WHERE cat_prod = '{categoria}'")
-            resultados = [list(i) for i in self.db.cursor]
-            for i in resultados:
-                print(i)
+        self.nom_productoIn.delete(0, END)
+        self.pre_productoIn.delete(0, END)
+        categoria = self.cat_comb.get()
+        self.db.cursor.execute(f"SELECT * FROM Producto WHERE cat_prod = '{categoria}'")
+        resultados = [list(i) for i in self.db.cursor]
+        for i in resultados:
+            print(i)
 
     def ingresarProducto(self):
-        if self.cat_productoIn.get() != "" and self.nom_productoIn.get() != "" and self.pre_productoIn.get() != "":
+        if self.nom_productoIn.get() != "" and self.pre_productoIn.get() != "":
             try:
                 precio = float(self.pre_productoIn.get())
-                consulta_id = self.db.cursor.execute("SELECT MAX(co_prod) FROM Producto").fetchall() #id max
-                if [list(i) for i in consulta_id][0][0] == None: #si no hay productos en la tabla
+                consulta_id = [x for i in self.db.cursor.execute("SELECT MAX(co_prod) FROM Producto").fetchall() for x in i][0] #id max
+                if consulta_id == None: #si no hay productos en la tabla
                     id_nueva = 0
                 else:
-                    id_nueva = [list(i) for i in consulta_id][0][0] + 1
-                self.db.cursor.execute(f"INSERT INTO Producto (co_prod, cat_prod, nom_prod, pre_prod) VALUES ('{id_nueva}', '{self.cat_productoIn.get()}', '{self.nom_productoIn.get()}', '{precio}')")
+                    id_nueva = consulta_id + 1
+                self.db.cursor.execute(f"INSERT INTO Producto (co_prod, cat_prod, nom_prod, pre_prod) VALUES ('{id_nueva}', '{self.cat_comb.get()}', '{self.nom_productoIn.get()}', '{precio}')")
                 self.db.cursor.commit()
                 self.nom_productoIn.delete(0, END)
-                self.cat_productoIn.delete(0, END)
                 self.pre_productoIn.delete(0, END)
+                self.id_productoIn.configure(state = "normal")
+                self.id_productoIn.delete(0, END)
+                self.id_productoIn.insert(0, id_nueva + 1)
+                self.id_productoIn.configure(state = "disable")
             except ValueError:
                 print("Solo enteros.")
         else:
@@ -297,7 +298,7 @@ class Menu:
         elif event.widget == self.ingresar:
             self.ingresar.configure(state = "normal")
         else:
-            event.widget.configure(background = "white", foreground = "#32cbb9")
+            event.widget.configure(background = "#f4f4f4", foreground = "#32cbb9")
 
 if __name__ == "__main__":
     window = Tk()

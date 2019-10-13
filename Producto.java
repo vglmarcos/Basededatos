@@ -66,6 +66,7 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
         nom_prodField.setBackground(new Color(224, 224, 224));
         nom_prodField.setForeground(new Color(252, 186, 3));
         nom_prodField.setFont(new Font("Tahoma", 1, 14));
+        nom_prodField.addFocusListener(this);
         this.add(nom_prodField);
 
         categoria = new JLabel("Categoria: ");
@@ -90,6 +91,7 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
         categoriasCombo.setFont(new Font("Tahoma", 1, 14));
         categoriasCombo.setBackground(new Color(224, 224, 224));
         categoriasCombo.setForeground(new Color(252, 186, 3));
+        categoriasCombo.addFocusListener(this);
         this.add(categoriasCombo);
 
         pre_prod = new JLabel("Precio: ");
@@ -103,6 +105,7 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
         pre_prodField.setBackground(new Color(224, 224, 224));
         pre_prodField.setForeground(new Color(252, 186, 3));
         pre_prodField.setFont(new Font("Tahoma", 1, 14));
+        pre_prodField.addFocusListener(this);
         this.add(pre_prodField);
 
         regresar = new JButton("Cerrar sesi\u00F3n");
@@ -167,12 +170,30 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
     
         @Override
         public void focusGained(FocusEvent evt) {
-
+            if(evt.getSource() == this.nom_prodField) {
+                nom_prodField.setBackground(new Color(252, 186, 3));
+                nom_prodField.setForeground(new Color(255, 255, 255));
+            } else if(evt.getSource() == this.categoriasCombo) {
+                categoriasCombo.setBackground(new Color(252, 186, 3));
+                categoriasCombo.setForeground(new Color(255, 255, 255));
+            } else if(evt.getSource() == this.pre_prodField) {
+                pre_prodField.setBackground(new Color(252, 186, 3));
+                pre_prodField.setForeground(new Color(255, 255, 255));
+            }
         }
     
         @Override
         public void focusLost(FocusEvent evt) {
-
+            if(evt.getSource() == this.nom_prodField) {
+                nom_prodField.setBackground(new Color(224, 224, 224));
+                nom_prodField.setForeground(new Color(252, 186, 3));
+            } else if(evt.getSource() == this.categoriasCombo) {
+                categoriasCombo.setBackground(new Color(224, 224, 224));
+                categoriasCombo.setForeground(new Color(252, 186, 3));
+            } else if(evt.getSource() == this.pre_prodField) {
+                pre_prodField.setBackground(new Color(224, 224, 224));
+                pre_prodField.setForeground(new Color(252, 186, 3));
+            }
         }
     
         //Eventos del mouse

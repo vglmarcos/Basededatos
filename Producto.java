@@ -13,13 +13,17 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
     private String path;
     private String url;
     private Connection conn;
+    private ImageIcon icon = new ImageIcon("images/subir.png");
     private Statement st;
     private ResultSet rs;
     private Integer id;
+    private JMenuBar barra;
+    private JMenu opciones;
+    private JMenuItem buscar;
     
     public Producto(String title) {
         this.setLayout(null);
-        this.setBounds(0, 0, 500, 300);
+        this.setBounds(0, 0, 500, 325);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setTitle(title);
@@ -36,9 +40,20 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
             rs = st.executeQuery("SELECT MAX(co_prod) FROM Producto"); //obtener id maxima de los productos
             rs.next();
             id = rs.getInt(1) + 1;
+            System.out.println("Se ha conectado con la base de datos.");
         } catch(SQLException e) {
             System.out.println(e);
         }
+
+        barra = new JMenuBar();
+        this.setJMenuBar(barra);
+
+        opciones = new JMenu("Opciones");
+        barra.add(opciones);
+
+        buscar = new JMenuItem("Buscar producto");
+        buscar.addActionListener(this);
+        opciones.add(buscar);
 
         id_prod = new JLabel("C\u00F3digo del producto: ");
         id_prod.setBounds(30, 40, 150, 25);
@@ -133,7 +148,7 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
         this.add(ingresar);
     }
 
-        //Eventos de los botones
+        //Eventos de los componentes
 
         @Override
         public void actionPerformed(ActionEvent evt) {
@@ -141,25 +156,46 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
                 Login login = new Login("Ingresar");
                 login.setVisible(true);
                 this.setVisible(false);
-                System.out.println("Se ha cerrado sesi\u00F3n");
                 try {
                     st.close();
+                    System.out.println("Se ha cerrado sesi\u00F3n con la base de datos.");
                 } catch(SQLException e) {
                     System.out.println(e);
                 }
             } else if(evt.getSource() == this.ingresar) {
-                String nombre = nom_prodField.getText();
-                String precio = pre_prodField.getText();
-                String cat = categoriasCombo.getSelectedItem().toString();
+                if(this.nom_prodField.getText().trim().isEmpty() || this.pre_prodField.getText().trim().isEmpty()) {
+                    System.out.println("Debe llenar todos los campos.");
+                    JOptionPane.showMessageDialog(null, "Debe llenar todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    String nombre = nom_prodField.getText().trim();
+                    try{
+                        Double precio = Double.parseDouble(pre_prodField.getText().trim());
+                        String cat = categoriasCombo.getSelectedItem().toString();
+                        try {
+                            st.executeUpdate("INSERT INTO Producto (co_prod, cat_prod, nom_prod, pre_prod) VALUES ('" + id + "', '" + cat + "', '" + nombre + "', '" + precio + "')");
+                            System.out.println("Se ha agregado correctamente el producto.");
+                            JOptionPane.showMessageDialog(null, "Se agreg\u00F3 correctamente el producto.", "Hecho", 1, icon);
+                            id = id + 1;
+                            id_prodField.setEditable(true);
+                            id_prodField.setText(id.toString());
+                            id_prodField.setEditable(false);
+                            nom_prodField.setText("");
+                            pre_prodField.setText("");
+                        } catch(SQLException e) {
+                            System.out.println(e);
+                        }
+                    } catch(NumberFormatException e) {
+                        System.out.println("El precio debe ser un n\u00FAmero real.");
+                        JOptionPane.showMessageDialog(null, "El precio debe ser un n\u00FAmero real.", "Error n\u00FAmerico", JOptionPane.ERROR_MESSAGE);
+                    }  
+                }
+            } else if(evt.getSource() == this.buscar) {
+                BuscarProducto buscarProducto = new BuscarProducto("Buscar producto");
+                buscarProducto.setVisible(true);
+                this.setVisible(false);
                 try {
-                    st.executeUpdate("INSERT INTO Producto (co_prod, cat_prod, nom_prod, pre_prod) VALUES ('" + id + "', '" + cat + "', '" + nombre + "', '" + precio + "')");
-                    System.out.println("Se ha agregado correctamente el producto.");
-                    id = id + 1;
-                    id_prodField.setEditable(true);
-                    id_prodField.setText(id.toString());
-                    id_prodField.setEditable(false);
-                    nom_prodField.setText("");
-                    pre_prodField.setText("");
+                    st.close();
+                    System.out.println("Se ha cerrado sesi\u00F3n con la base de datos.");
                 } catch(SQLException e) {
                     System.out.println(e);
                 }

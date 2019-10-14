@@ -40,12 +40,7 @@ public class BuscarProducto extends JFrame implements ActionListener, KeyListene
         }
 
         modelo = new DefaultTableModel(null, new String[]{"Id", "Nombre", "Categoria", "Precio"});
-        tabla = new JTable(modelo){
-            @Override
-            public boolean isCellEditable(int row, int column){
-                return false;
-            }
-        };
+        tabla = new JTable(modelo);
         scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 65, 460, 200);
         this.add(scroll);

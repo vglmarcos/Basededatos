@@ -1,11 +1,21 @@
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.event.*;
 import java.awt.*;
+import java.sql.*;
 
 public class BuscarProducto extends JFrame implements ActionListener, KeyListener, FocusListener, MouseListener {
 
     private String pathIcon = "images/codigo.png";
+    private DefaultTableModel modelo;
+    private JTable tabla;
+    private JScrollPane scroll;
     private JButton regresar;
+    private String path;
+    private String url;
+    private Connection conn;
+    private Statement st;
+    private ResultSet rs;
 
     public BuscarProducto(String title) {
         this.setLayout(null);
@@ -16,6 +26,38 @@ public class BuscarProducto extends JFrame implements ActionListener, KeyListene
         this.getContentPane().setBackground(new Color(255, 255, 255));
         this.setIconImage(new ImageIcon(getClass().getResource(pathIcon)).getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        path = "C:\\Users\\Marcos\\Desktop\\Base de datos\\database\\Tienda.accdb";
+        url = "jdbc:ucanaccess://" + path;
+
+        try {
+            conn = DriverManager.getConnection(url);
+            st = conn.createStatement();
+            rs = st.executeQuery("SELECT * FROM Producto");
+            System.out.println("Se ha conectado con la base de datos.");
+        } catch(SQLException e) {
+            System.out.println(e);
+        }
+
+        modelo = new DefaultTableModel(null, new String[]{"Id", "Nombre", "Categoria", "Precio"});
+        tabla = new JTable(modelo){
+            @Override
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+        };
+        scroll = new JScrollPane(tabla);
+        scroll.setBounds(20, 65, 460, 200);
+        this.add(scroll);
+
+        try {
+            while(rs.next()) {
+                String[] row = {rs.getString("co_prod"), rs.getString("nom_prod"), rs.getString("cat_prod"), rs.getString("pre_prod")};
+                modelo.addRow(row);
+            }
+        } catch(SQLException e) {
+            System.out.println(e);
+        }
 
         regresar = new JButton("Regresar");
         regresar.setBounds(350, 15, 125, 25);
@@ -38,6 +80,12 @@ public class BuscarProducto extends JFrame implements ActionListener, KeyListene
             Producto producto = new Producto("Ingresar producto");
             producto.setVisible(true);
             this.setVisible(false);
+            try {
+                st.close();
+                System.out.println("Se ha cerrado sesi\u00F3n con la base de datos.");
+            } catch(SQLException e) {
+                System.out.println(e);
+            }
         }
     }
 

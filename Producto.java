@@ -13,9 +13,9 @@ public class Producto extends JFrame implements ActionListener, KeyListener, Foc
     private String path;
     private String url;
     private Connection conn;
-    private ImageIcon icon = new ImageIcon("images/subir.png");
     private Statement st;
     private ResultSet rs;
+    private ImageIcon icon = new ImageIcon("images/subir.png");
     private Integer id;
     private JMenuBar barra;
     private JMenu opciones;
